@@ -1,13 +1,21 @@
-"""Privacy Aggregation Layer."""
+"""Privacy Aggregation Layer - Enforces minimum group size before sending to Organization Mode."""
 
 import sys
 import os
 import httpx
+from pathlib import Path
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../shared'))
-from models import AggregateWorkforceSignal, ActionOutcome
+# Ensure shared module is accessible
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(ROOT_DIR))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from corporate import DB_ASSIGNMENTS, DB_CORPORATE_ACTIONS
+from shared.contracts import AggregateWorkforceSignal, ActionOutcome
+
+# Import the in-memory stores directly from the corporate module
+import decidr.backend.corporate as _corp_module
+DB_ASSIGNMENTS = _corp_module.DB_ASSIGNMENTS
+DB_CORPORATE_ACTIONS = _corp_module.DB_CORPORATE_ACTIONS
 
 ACDS_API_URL = "http://localhost:8001"
 MIN_GROUP_SIZE = 10
