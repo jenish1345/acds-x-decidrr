@@ -5,9 +5,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import sys
 import os
+from pathlib import Path
 
-# Add project root to sys.path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+# When uvicorn runs from decidr/backend/, __file__ is in that dir.
+# We need:
+#   - decidr/backend/ on sys.path  → imports models, agents, corporate, aggregator, decision_engine
+#   - repo root (acds_collab/)     → imports shared.contracts
+_BACKEND_DIR = Path(__file__).resolve().parent          # decidr/backend/
+_REPO_ROOT   = _BACKEND_DIR.parent.parent               # acds_collab/
+
+for _p in [str(_BACKEND_DIR), str(_REPO_ROOT)]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 from models import UserContext, AgentResponse, DecisionPlan
 from agents import academic, fitness, recovery, schedule

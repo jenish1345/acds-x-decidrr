@@ -1,10 +1,10 @@
 """Shared Integration Schema and Decision Contracts between Organization Mode and Personal Mode."""
+# integration_version used by both backends for contract versioning
+integration_version = "v1"
 
 from pydantic import BaseModel, Field
 from typing import List, Optional, Literal, Dict, Any
 from datetime import datetime
-
-integration_version = "v1"
 
 class Organization(BaseModel):
     organization_id: str
@@ -146,3 +146,15 @@ class DecisionTrace(BaseModel):
     correlation_id: str
     created_at: str
     steps: List[DecisionTraceStep]
+
+
+class IntegrationEvent(BaseModel):
+    """Lightweight audit event for the correlation/provenance trail."""
+    event_id: str
+    event_type: str
+    timestamp: str
+    source: str
+    organization_id: str
+    department: str
+    correlation_id: str
+    payload: Dict[str, Any] = {}

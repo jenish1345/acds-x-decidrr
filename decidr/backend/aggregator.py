@@ -5,17 +5,19 @@ import os
 import httpx
 from pathlib import Path
 
-# Ensure shared module is accessible
+# Make shared/ importable regardless of working directory
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(ROOT_DIR))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from shared.contracts import AggregateWorkforceSignal, ActionOutcome
 
-# Import the in-memory stores directly from the corporate module
-import decidr.backend.corporate as _corp_module
-DB_ASSIGNMENTS = _corp_module.DB_ASSIGNMENTS
-DB_CORPORATE_ACTIONS = _corp_module.DB_CORPORATE_ACTIONS
+# Lazy import: when uvicorn runs this from decidr/backend/, corporate is a sibling module
+# When run from the repo root (tests), decidr.backend.corporate is the path
+try:
+    from corporate import DB_ASSIGNMENTS, DB_CORPORATE_ACTIONS
+except ImportError:
+    from decidr.backend.corporate import DB_ASSIGNMENTS, DB_CORPORATE_ACTIONS
 
 ACDS_API_URL = "http://localhost:8001"
 MIN_GROUP_SIZE = 10
