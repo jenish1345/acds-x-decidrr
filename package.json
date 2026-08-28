@@ -1,0 +1,16 @@
+{
+  "name": "decidr",
+  "version": "1.0.0",
+  "description": "DECIDR - Decision intelligence from organization to individual.",
+  "scripts": {
+    "install:all": "npm install --prefix decidr && npm install --prefix acds_platform/acds-platform",
+    "dev:personal-ui": "npm run dev --prefix decidr",
+    "dev:org-ui": "npm run dev --prefix acds_platform/acds-platform",
+    "dev:personal-api": "cd decidr/backend && python3 -m uvicorn server:app --port 8000 --reload",
+    "dev:org-api": "cd acds_platform/backend && python3 -m uvicorn server:app --port 8001 --reload",
+    "dev": "concurrently \"npm:dev:*\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
