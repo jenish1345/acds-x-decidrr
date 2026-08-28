@@ -1,0 +1,46 @@
+# Root dependencies
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.venv/
+venv/
+env/
+*.egg
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Next.js
+decidr/.next/
+decidr/out/
+decidr/node_modules/
+
+# Vite / ACDS
+acds_platform/acds-platform/node_modules/
+acds_platform/acds-platform/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
