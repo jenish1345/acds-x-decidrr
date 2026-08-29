@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Filter } from 'lucide-react';
 import { AlertCard } from '../components/Alerts/AlertCard';
-import { alerts } from '../data/mockData';
+import { useDatasetStore } from '../store/datasetStore';
+import { NoDatasetEmptyState } from '../components/Common/NoDatasetEmptyState';
 import type { RiskLevel } from '../types';
 
 interface AlertsViewProps {
@@ -9,8 +10,21 @@ interface AlertsViewProps {
 }
 
 export const AlertsView: React.FC<AlertsViewProps> = ({ onNavigate }) => {
+  const currentDataset = useDatasetStore((state) => state.currentDataset);
+  const alerts = useDatasetStore((state) => state.dynamicAlerts) || [];
+
   const [filterSeverity, setFilterSeverity] = useState<RiskLevel | 'all'>('all');
   const [filterDepartment, setFilterDepartment] = useState<string>('all');
+
+  if (!currentDataset) {
+    return (
+      <NoDatasetEmptyState
+        title="Risk & Diagnostic Alerts"
+        description="Upload an operational or financial dataset to detect statistical anomalies, operational bottlenecks, and risk patterns."
+        onNavigate={onNavigate}
+      />
+    );
+  }
 
   const departments = Array.from(new Set(alerts.map(a => a.department)));
 
@@ -65,13 +79,19 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onNavigate }) => {
       </div>
 
       <div className="space-y-4">
-        {filteredAlerts.map((alert) => (
-          <AlertCard
-            key={alert.id}
-            alert={alert}
-            onViewDetails={(id) => onNavigate('analysis', id)}
-          />
-        ))}
+        {filteredAlerts.length === 0 ? (
+          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500 text-sm">
+            No risk alerts match the selected criteria for this dataset.
+          </div>
+        ) : (
+          filteredAlerts.map((alert) => (
+            <AlertCard
+              key={alert.id}
+              alert={alert}
+              onViewDetails={(id) => onNavigate('analysis', id)}
+            />
+          ))
+        )}
       </div>
     </div>
   );

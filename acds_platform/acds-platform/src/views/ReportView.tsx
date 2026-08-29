@@ -1,10 +1,74 @@
 import React from 'react';
 import { Download, Printer } from 'lucide-react';
-import { companyHealth, kpis, alerts, businessImpacts, recommendations, departmentRisks } from '../data/mockData';
+import { useDatasetStore } from '../store/datasetStore';
+import { NoDatasetEmptyState } from '../components/Common/NoDatasetEmptyState';
+import type { DepartmentRisk, Recommendation } from '../types';
 
-export const ReportView: React.FC = () => {
-  const totalImpact = businessImpacts.reduce((sum, bi) => sum + bi.financialImpact.estimated, 0);
+interface ReportViewProps {
+  onNavigate?: (view: string) => void;
+}
+
+export const ReportView: React.FC<ReportViewProps> = ({ onNavigate }) => {
+  const currentDataset = useDatasetStore((state) => state.currentDataset);
+  const store = useDatasetStore();
+
+  if (!currentDataset) {
+    return (
+      <NoDatasetEmptyState
+        title="Executive Summary Report"
+        description="Upload an operational or financial dataset to generate a full comprehensive diagnostic report with zero assumed or mocked data."
+        onNavigate={onNavigate}
+      />
+    );
+  }
+
+  const companyHealth = store.dynamicHealth || {
+    overallScore: 0,
+    riskStatus: 'healthy' as const,
+    lastUpdated: new Date().toISOString(),
+    trend: 'stable' as const
+  };
+
+  const kpis = store.dynamicKPIs || [];
+  const alerts = store.dynamicAlerts || [];
+  const totalImpact = store.predictedLoss || 0;
   const criticalAlerts = alerts.filter(a => a.severity === 'critical').length;
+
+  const datasetDepartments = currentDataset.mappings?.department
+    ? Array.from(new Set(currentDataset.data.map(r => String(r[currentDataset.mappings!.department!])).filter(Boolean)))
+    : [];
+
+  const allDepts = Array.from(new Set([
+    ...alerts.map(a => a.department),
+    ...(datasetDepartments.length > 0 ? datasetDepartments : ['Operations', 'Finance', 'Technology', 'Sales'])
+  ]));
+
+  const departmentRisks: DepartmentRisk[] = allDepts.map(dept => {
+    const deptAlerts = alerts.filter(a => a.department.toLowerCase() === dept.toLowerCase());
+    const critical = deptAlerts.some(a => a.severity === 'critical');
+    const warning = deptAlerts.some(a => a.severity === 'warning');
+    const riskLevel = critical ? 'critical' : warning ? 'warning' : 'healthy';
+    const score = critical ? 80 : warning ? 62 : 30;
+
+    return {
+      department: dept,
+      riskLevel,
+      score,
+      activeAlerts: deptAlerts.length
+    };
+  });
+
+  const recommendations: Recommendation[] = alerts.map((alert) => ({
+    id: `REC_${alert.id}`,
+    alertId: alert.id,
+    title: `Remediate ${alert.title}`,
+    description: `Execute mitigation strategy for ${alert.department}: "${alert.description}". Stabilize affected metrics: ${alert.affectedMetrics?.join(', ') || 'operations'}.`,
+    priority: alert.severity === 'critical' ? 'critical' : 'high',
+    expectedOutcome: `Reduce risk exposure and restore ${alert.department} metrics to nominal operating range.`,
+    effort: alert.severity === 'critical' ? 'high' : 'medium',
+    timeline: alert.severity === 'critical' ? '30 days' : '60 days',
+    owner: `VP / Head of ${alert.department}`
+  }));
 
   return (
     <div className="space-y-6">

@@ -134,3 +134,42 @@
   - PR link: `https://github.com/jenish1345/acds-x-decidrr/pull/new/sam`
 - **Status: PUSHED TO BRANCH sam & COMPLETE ✅**
 
+---
+
+### Session 6 — 2026-08-29 (Zero Mock Policy & Real Data Gating)
+
+- **User Directives**:
+  - Audit all other views (Executive Dashboard, Risk & Alerts, Root Cause Analysis, Business Impact, Recommendations, Department Heatmap, Executive Report) to determine if they use real data vs mock data.
+  - Option B selected & approved: Hide/disable dataset-dependent views in the sidebar until a real dataset is uploaded.
+  - Complete elimination of mock data across the entire codebase. Zero mock data policy.
+- **Audit Findings**:
+  - All 7 legacy views (`DashboardView`, `AlertsView`, `AnalysisView`, `ImpactView`, `RecommendationsView`, `HeatmapView`, `ReportView`) relied on hardcoded fake records in `mockData.ts`.
+  - `SubscriptionView.tsx` had inline fake subscription, usage, and invoice records.
+  - `aiService.ts` had a hardcoded `return 72; // Mock score`.
+- **Implementation & Refactoring**:
+  1. **Conditional Sidebar Navigation (`Sidebar.tsx`)**:
+     - Connected to `useDatasetStore`.
+     - When `!currentDataset`, hides the 7 dataset-dependent views and displays an active "Diagnostic Suite" unlock card prompting users to upload a real dataset.
+     - Once a CSV/Excel dataset is uploaded, all 7 views dynamically appear in the sidebar.
+  2. **`NoDatasetEmptyState` Component**:
+     - Created `src/components/Common/NoDatasetEmptyState.tsx`.
+     - Integrated across all 7 views to handle edge cases if navigated to directly without a dataset.
+  3. **Wired Views to Real Dataset Analytics (`datasetStore`)**:
+     - `DashboardView.tsx`: Removed all mock fallbacks; derives real health score, KPIs, and alerts from `useDatasetStore`.
+     - `AlertsView.tsx`: Connects to `store.dynamicAlerts` computed from real uploaded data.
+     - `AnalysisView.tsx`: Dynamically traces root causes from real alerts and dataset distributions.
+     - `ImpactView.tsx`: Dynamically computes financial impact from `store.predictedLoss` and real alert severity.
+     - `RecommendationsView.tsx`: Generates targeted mitigation strategies for detected anomalies.
+     - `HeatmapView.tsx`: Computes cross-functional department risks from real dataset departments and active alerts.
+     - `ReportView.tsx`: Aggregates dynamic metrics and real alerts into an executive diagnostic report.
+  4. **Complete Elimination of Mock Files & Inline Mocks**:
+     - Completely deleted `src/data/mockData.ts`.
+     - Created clean session module `src/data/user.ts` for `currentUser`.
+     - Refactored `SubscriptionView.tsx` to remove inline fake subscription/invoice objects.
+     - Refactored `aiService.ts` to compute scores mathematically from input metrics.
+     - Cleaned comments in `aiEngine.ts` and `supabase.ts`.
+- **Verification**:
+  - `npx tsc --noEmit` verified: 0 TypeScript errors in updated files.
+  - Dev server running cleanly with Vite HMR updates.
+  - Browser subagent verified clean sidebar with active views (`Financial Intelligence`, `B2B2C Integration`, `Upload Dataset`, `Import Real Data`) and smooth navigation to the dataset uploader.
+- **Status: VERIFIED & READY TO COMMIT ✅**

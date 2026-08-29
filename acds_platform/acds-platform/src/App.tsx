@@ -16,7 +16,7 @@ import { RecommendationsView } from './views/RecommendationsView';
 import { HeatmapView } from './views/HeatmapView';
 import { ReportView } from './views/ReportView';
 import { IntegrationView } from './views/IntegrationView';
-import { currentUser } from './data/mockData';
+import { currentUser } from './data/user';
 import { useDatasetStore } from './store/datasetStore';
 import type { Dataset } from './types/dataset';
 
@@ -89,9 +89,9 @@ function App() {
               {activeView === 'alerts' && <AlertsView onNavigate={handleNavigate} />}
               {activeView === 'analysis' && <AnalysisView selectedAlertId={selectedAlertId} onNavigate={handleNavigate} />}
               {activeView === 'impact' && <ImpactView onNavigate={handleNavigate} />}
-              {activeView === 'recommendations' && <RecommendationsView />}
-              {activeView === 'heatmap' && <HeatmapView />}
-              {activeView === 'report' && <ReportView />}
+              {activeView === 'recommendations' && <RecommendationsView onNavigate={handleNavigate} />}
+              {activeView === 'heatmap' && <HeatmapView onNavigate={handleNavigate} />}
+              {activeView === 'report' && <ReportView onNavigate={handleNavigate} />}
               {activeView === 'integration' && <IntegrationView />}
               {activeView === 'import' && <DataImportView />}
               {activeView === 'upload' && (

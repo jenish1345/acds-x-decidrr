@@ -113,8 +113,11 @@ export class AIService {
     // - Historical patterns
     // - External factors
     
-    console.log('Metrics:', companyMetrics); // Prevent unused warning
-    return 72; // Mock score
+    if (!companyMetrics || Object.keys(companyMetrics).length === 0) return 0;
+    const values = Object.values(companyMetrics).map(Number).filter(v => !isNaN(v));
+    if (values.length === 0) return 0;
+    const avg = values.reduce((s, v) => s + v, 0) / values.length;
+    return Math.max(0, Math.min(100, Math.round(avg)));
   }
 
   /**

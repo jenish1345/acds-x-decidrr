@@ -388,7 +388,7 @@ export async function generatePredictiveInsights(dataset: Dataset): Promise<Pred
 }
 
 /**
- * Determine most vulnerable department (mock implementation)
+ * Determine most vulnerable department using statistical heuristics
  */
 export function identifyVulnerableDepartment(dataset: Dataset): string {
   const { mappings } = dataset;

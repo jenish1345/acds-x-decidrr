@@ -6,10 +6,10 @@ import { KPICard } from '../components/Dashboard/KPICard';
 import { AlertCard } from '../components/Alerts/AlertCard';
 import { AIInsightsCard } from '../components/Dashboard/AIInsightsCard';
 import { ComparisonView } from '../components/Dashboard/ComparisonView';
-import { companyHealth, kpis, alerts } from '../data/mockData';
 import { exportToPDF } from '../utils/pdfExport';
 import { useDatasetStore } from '../store/datasetStore';
 import { useDatasetAnalysis } from '../hooks/useDatasetAnalysis';
+import { NoDatasetEmptyState } from '../components/Common/NoDatasetEmptyState';
 import toast from 'react-hot-toast';
 
 interface DashboardViewProps {
@@ -26,11 +26,26 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
   // Use React Query hook for AI analysis
   const { data: analysisData, isLoading } = useDatasetAnalysis(currentDataset);
   
-  // Use dynamic data if available, otherwise fall back to mock data
-  const displayHealth = store.dynamicHealth || companyHealth;
-  const displayKPIs = store.dynamicKPIs || kpis;
-  const displayAlerts = store.dynamicAlerts || alerts;
-  const hasAIData = currentDataset && store.predictiveInsights.length > 0;
+  if (!currentDataset) {
+    return (
+      <NoDatasetEmptyState
+        title="Executive Dashboard"
+        description="Upload your company's operational or financial dataset to view your real-time company health score, dynamic KPIs, and automated risk alerts."
+        onNavigate={onNavigate}
+      />
+    );
+  }
+
+  // Use dynamic data computed from real dataset
+  const displayHealth = store.dynamicHealth || {
+    overallScore: 0,
+    riskStatus: 'healthy',
+    lastUpdated: new Date().toISOString(),
+    trend: 'stable'
+  };
+  const displayKPIs = store.dynamicKPIs || [];
+  const displayAlerts = store.dynamicAlerts || [];
+  const hasAIData = store.predictiveInsights.length > 0;
 
   const handleExportPDF = () => {
     toast.loading('Generating PDF report...');
@@ -46,8 +61,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         health: displayHealth,
         kpis: displayKPIs,
         alerts: displayAlerts,
-        insights: store.predictiveInsights,
         predictedLoss: store.predictedLoss,
+        insights: store.predictiveInsights.map(pi => ({
+          id: pi.id,
+          title: pi.title,
+          description: pi.prediction,
+          confidence: pi.confidence,
+          timeframe: pi.timeframe,
+          type: (pi.category === 'risk' ? 'risk' : 'opportunity') as 'risk' | 'opportunity' | 'trend',
+          impact: (pi.severity === 'critical' ? 'high' : 'medium') as 'high' | 'medium' | 'low'
+        })),
         riskProbability: store.riskProbability,
         vulnerableDepartment: store.vulnerableDepartment
       });

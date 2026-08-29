@@ -1,8 +1,50 @@
 import React from 'react';
 import { DepartmentHeatmap } from '../components/Heatmap/DepartmentHeatmap';
-import { departmentRisks } from '../data/mockData';
+import { useDatasetStore } from '../store/datasetStore';
+import { NoDatasetEmptyState } from '../components/Common/NoDatasetEmptyState';
+import type { DepartmentRisk } from '../types';
 
-export const HeatmapView: React.FC = () => {
+interface HeatmapViewProps {
+  onNavigate?: (view: string) => void;
+}
+
+export const HeatmapView: React.FC<HeatmapViewProps> = ({ onNavigate }) => {
+  const currentDataset = useDatasetStore((state) => state.currentDataset);
+  const alerts = useDatasetStore((state) => state.dynamicAlerts) || [];
+
+  if (!currentDataset) {
+    return (
+      <NoDatasetEmptyState
+        title="Department Risk Heatmap"
+        description="Upload an organizational or operational dataset to map department-level risk exposure, active alerts, and vulnerability scores."
+        onNavigate={onNavigate}
+      />
+    );
+  }
+
+  const datasetDepartments = currentDataset.mappings?.department
+    ? Array.from(new Set(currentDataset.data.map(r => String(r[currentDataset.mappings!.department!])).filter(Boolean)))
+    : [];
+
+  const allDepts = Array.from(new Set([
+    ...alerts.map(a => a.department),
+    ...(datasetDepartments.length > 0 ? datasetDepartments : ['Operations', 'Finance', 'Technology', 'Sales', 'Customer Success'])
+  ]));
+
+  const departmentRisks: DepartmentRisk[] = allDepts.map(dept => {
+    const deptAlerts = alerts.filter(a => a.department.toLowerCase() === dept.toLowerCase());
+    const critical = deptAlerts.some(a => a.severity === 'critical');
+    const warning = deptAlerts.some(a => a.severity === 'warning');
+    const riskLevel = critical ? 'critical' : warning ? 'warning' : 'healthy';
+    const score = critical ? 80 : warning ? 62 : 30;
+
+    return {
+      department: dept,
+      riskLevel,
+      score,
+      activeAlerts: deptAlerts.length
+    };
+  });
   const criticalCount = departmentRisks.filter(d => d.riskLevel === 'critical').length;
   const warningCount = departmentRisks.filter(d => d.riskLevel === 'warning').length;
   const healthyCount = departmentRisks.filter(d => d.riskLevel === 'healthy').length;

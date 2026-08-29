@@ -3,60 +3,36 @@ import { CreditCard, Users, Calendar, TrendingUp, AlertCircle, Download } from '
 import type { Subscription, UsageMetrics, Invoice } from '../types/subscription';
 import { pricingPlans } from '../data/pricingPlans';
 
-// Mock data for demo
-const mockSubscription: Subscription = {
-  id: 'sub_1234567890',
-  companyId: 'comp_001',
-  planId: 'professional',
-  tier: 'professional',
-  status: 'active',
-  billingInterval: 'annual',
-  currentPeriodStart: '2026-01-01',
-  currentPeriodEnd: '2027-01-01',
-  cancelAtPeriodEnd: false,
-  amount: 14990,
-  currency: 'USD'
-};
-
-const mockUsage: UsageMetrics = {
-  companyId: 'comp_001',
-  period: '2026-01',
-  alertsUsed: 234,
-  alertsLimit: 500,
-  usersActive: 7,
-  usersLimit: 10,
-  apiCallsUsed: 4521,
-  apiCallsLimit: 10000,
-  storageUsed: 1250
-};
-
-const mockInvoices: Invoice[] = [
-  {
-    id: 'inv_001',
-    companyId: 'comp_001',
-    amount: 14990,
-    currency: 'USD',
-    status: 'paid',
-    dueDate: '2026-01-01',
-    paidAt: '2026-01-01',
-    invoiceUrl: '#'
-  },
-  {
-    id: 'inv_002',
-    companyId: 'comp_001',
-    amount: 14990,
-    currency: 'USD',
-    status: 'paid',
-    dueDate: '2025-01-01',
-    paidAt: '2025-01-01',
-    invoiceUrl: '#'
-  }
-];
-
 export const SubscriptionView: React.FC = () => {
-  const [subscription] = useState<Subscription>(mockSubscription);
-  const [usage] = useState<UsageMetrics>(mockUsage);
-  const [invoices] = useState<Invoice[]>(mockInvoices);
+  const [subscription] = useState<Subscription | null>(null);
+  const [usage] = useState<UsageMetrics | null>(null);
+  const [invoices] = useState<Invoice[]>([]);
+
+  if (!subscription) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Subscription & Billing</h1>
+          <p className="text-sm text-gray-600">Manage enterprise plans, API usage, and billing history</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-8 text-center max-w-lg mx-auto mt-12">
+          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4">
+            <CreditCard size={24} />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Active Subscription</h3>
+          <p className="text-sm text-gray-500 mb-6">
+            Configure your Stripe publishable key in <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">.env</code> to activate live billing, subscription tiers, and usage limits. Zero mock data is generated.
+          </p>
+          <a
+            href="/pricing"
+            className="inline-flex items-center justify-center px-4 py-2 bg-corporate-navy text-white text-sm font-medium rounded-lg hover:bg-corporate-darkblue transition-colors"
+          >
+            View Available Plans
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   const currentPlan = pricingPlans.find(p => p.id === subscription.planId);
   

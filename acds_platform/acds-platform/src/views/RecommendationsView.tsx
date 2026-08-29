@@ -1,9 +1,40 @@
 import React, { useState } from 'react';
 import { RecommendationCard } from '../components/Recommendations/RecommendationCard';
-import { recommendations } from '../data/mockData';
+import { useDatasetStore } from '../store/datasetStore';
+import { NoDatasetEmptyState } from '../components/Common/NoDatasetEmptyState';
+import type { Recommendation } from '../types';
 
-export const RecommendationsView: React.FC = () => {
+interface RecommendationsViewProps {
+  onNavigate?: (view: string) => void;
+}
+
+export const RecommendationsView: React.FC<RecommendationsViewProps> = ({ onNavigate }) => {
+  const currentDataset = useDatasetStore((state) => state.currentDataset);
+  const alerts = useDatasetStore((state) => state.dynamicAlerts) || [];
+
   const [filterPriority, setFilterPriority] = useState<string>('all');
+
+  if (!currentDataset) {
+    return (
+      <NoDatasetEmptyState
+        title="Strategic Recommendations"
+        description="Upload a company dataset to generate automated strategic recommendations targeted at your specific operational risks."
+        onNavigate={onNavigate}
+      />
+    );
+  }
+
+  const recommendations: Recommendation[] = alerts.map((alert) => ({
+    id: `REC_${alert.id}`,
+    alertId: alert.id,
+    title: `Remediate ${alert.title}`,
+    description: `Execute mitigation strategy for ${alert.department} to resolve flagged anomaly: "${alert.description}". Focus on stabilizing: ${alert.affectedMetrics?.join(', ') || 'core operational indicators'}.`,
+    priority: alert.severity === 'critical' ? 'critical' : 'high',
+    expectedOutcome: `Reduce risk exposure and restore ${alert.department} metrics to nominal operating range.`,
+    effort: alert.severity === 'critical' ? 'high' : 'medium',
+    timeline: alert.severity === 'critical' ? '30 days' : '60 days',
+    owner: `VP / Head of ${alert.department}`
+  }));
 
   const filteredRecommendations = recommendations.filter(rec => {
     if (filterPriority !== 'all' && rec.priority !== filterPriority) return false;
@@ -45,9 +76,15 @@ export const RecommendationsView: React.FC = () => {
       </div>
 
       <div className="space-y-4">
-        {sortedRecommendations.map((recommendation) => (
-          <RecommendationCard key={recommendation.id} recommendation={recommendation} />
-        ))}
+        {sortedRecommendations.length === 0 ? (
+          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center text-gray-500 text-sm">
+            No recommendations required. All operational areas in this dataset are operating within target parameters.
+          </div>
+        ) : (
+          sortedRecommendations.map((recommendation) => (
+            <RecommendationCard key={recommendation.id} recommendation={recommendation} />
+          ))
+        )}
       </div>
 
       <div className="card-enterprise p-6 bg-gray-50">
