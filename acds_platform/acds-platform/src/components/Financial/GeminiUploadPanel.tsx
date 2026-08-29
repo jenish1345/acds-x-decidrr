@@ -7,6 +7,7 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, FileText, Sparkles, AlertCircle, CheckCircle, X, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { analyzeWithGroq } from '../../services/groqService';
 import { analyzeWithGemini } from '../../services/geminiService';
 import type { GeminiInsight } from '../../types/financial';
 
@@ -30,7 +31,15 @@ export const GeminiUploadPanel: React.FC<GeminiUploadPanelProps> = ({ onInsightR
   const [insight, setInsight] = useState<GeminiInsight | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
 
-  const apiKey = (import.meta as unknown as { env: Record<string, string> }).env?.VITE_GEMINI_API_KEY || '';
+  const envVars = (import.meta as unknown as { env: Record<string, string> }).env || {};
+  const rawGroqKey = envVars.VITE_GROQ_API_KEY || '';
+  const rawGeminiKey = envVars.VITE_GEMINI_API_KEY || '';
+
+  // Smart detect: Groq keys start with 'gsk_'
+  const groqApiKey = rawGroqKey || (rawGeminiKey.startsWith('gsk_') ? rawGeminiKey : '');
+  const geminiApiKey = !rawGeminiKey.startsWith('gsk_') ? rawGeminiKey : '';
+  const apiKey = groqApiKey || geminiApiKey;
+  const isGroq = Boolean(groqApiKey);
 
   const processFile = useCallback(async (file: File) => {
     if (!ACCEPTED_TYPES.includes(file.type) && !file.name.match(/\.(pdf|png|jpg|jpeg|csv|txt)$/i)) {
@@ -44,7 +53,14 @@ export const GeminiUploadPanel: React.FC<GeminiUploadPanelProps> = ({ onInsightR
     setInsight(null);
 
     try {
-      const result = await analyzeWithGemini(file, apiKey);
+      let result: GeminiInsight;
+      if (groqApiKey) {
+        result = await analyzeWithGroq(file, groqApiKey);
+      } else if (geminiApiKey) {
+        result = await analyzeWithGemini(file, geminiApiKey);
+      } else {
+        throw new Error('Please set VITE_GROQ_API_KEY in your .env file to enable AI analysis.');
+      }
       setInsight(result);
       onInsightReady(result);
     } catch (err) {
@@ -52,7 +68,7 @@ export const GeminiUploadPanel: React.FC<GeminiUploadPanelProps> = ({ onInsightR
     } finally {
       setIsAnalyzing(false);
     }
-  }, [apiKey, onInsightReady]);
+  }, [groqApiKey, geminiApiKey, onInsightReady]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -100,7 +116,9 @@ export const GeminiUploadPanel: React.FC<GeminiUploadPanelProps> = ({ onInsightR
               : 'Drop a financial report here, or click to browse'
             }
           </p>
-          <p className="text-xs text-gray-400 mt-1">PDF, PNG, JPG, CSV or TXT • Powered by Gemini AI</p>
+          <p className="text-xs text-gray-400 mt-1">
+            PDF, PNG, JPG, CSV or TXT • Powered by {isGroq ? 'Groq Llama 3.3 70B' : 'Groq AI'}
+          </p>
         </div>
       </label>
 
@@ -206,10 +224,19 @@ export const GeminiUploadPanel: React.FC<GeminiUploadPanelProps> = ({ onInsightR
         <div className="flex items-start gap-3 rounded-lg bg-amber-50 border border-amber-100 p-4">
           <AlertCircle size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-xs font-semibold text-amber-700">API Key Required</p>
+            <p className="text-xs font-semibold text-amber-700">Groq API Key Required</p>
             <p className="text-xs text-amber-600 mt-0.5">
-              Add <code className="bg-amber-100 px-1 rounded">VITE_GEMINI_API_KEY=your_key</code> to{' '}
-              <code className="bg-amber-100 px-1 rounded">acds_platform/acds-platform/.env</code> to enable document analysis.
+              Add <code className="bg-amber-100 px-1 rounded">VITE_GROQ_API_KEY=gsk_your_key</code> to{' '}
+              <code className="bg-amber-100 px-1 rounded">acds_platform/acds-platform/.env</code> to enable ultra-fast document analysis.
+              {' '}Get a free key at{' '}
+              <a
+                href="https://console.groq.com/keys"
+                target="_blank"
+                rel="noreferrer"
+                className="underline font-medium text-amber-800 hover:text-amber-950"
+              >
+                console.groq.com/keys
+              </a>
             </p>
           </div>
         </div>

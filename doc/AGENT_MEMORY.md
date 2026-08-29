@@ -172,4 +172,31 @@
   - `npx tsc --noEmit` verified: 0 TypeScript errors in updated files.
   - Dev server running cleanly with Vite HMR updates.
   - Browser subagent verified clean sidebar with active views (`Financial Intelligence`, `B2B2C Integration`, `Upload Dataset`, `Import Real Data`) and smooth navigation to the dataset uploader.
+- **Status: COMMITTED & PUSHED (762db8b) ✅**
+
+---
+
+### Session 7 — 2026-08-29 (Groq API Migration)
+
+- **User Directive**: "change the api ke y to groq"
+- **Architectural Alignment**:
+  - Aligns with project specification in `README.md` ("AI Model Used: Groq Llama 3.3 70B").
+- **Implementation**:
+  1. **`groqService.ts`**:
+     - Built dedicated Groq API service calling `https://api.groq.com/openai/v1/chat/completions`.
+     - Models: `llama-3.3-70b-versatile` (fast text/CSV/spreadsheets) and `llama-3.2-11b-vision-preview` (document images).
+     - Strict JSON output enforced via Groq's native `response_format: { type: "json_object" }`.
+     - Extracts structured insights (`summary`, `keyMetrics`, `risks`, `opportunities`, `recommendation`, `extractedMetrics`).
+  2. **`GeminiUploadPanel.tsx`**:
+     - Updated to read `VITE_GROQ_API_KEY` (smart auto-detects `gsk_` keys in either `VITE_GROQ_API_KEY` or `VITE_GEMINI_API_KEY`).
+     - Updated UI labels: "Groq Llama 3.3 70B", "Powered by Groq AI".
+     - Updated key requirement notice to prompt for Groq API key with direct link to `console.groq.com/keys`.
+  3. **`FinancialView.tsx`**:
+     - Updated section badge to `Groq Llama 3.3` with orange/amber styling.
+     - Updated subtitle to emphasize Groq ultra-low latency inference.
+  4. **`.env.example` & Configuration**:
+     - Documented `VITE_GROQ_API_KEY` and `VITE_GROQ_MODEL` with signup link.
+- **Verification**:
+  - `npx tsc --noEmit` verified with 0 errors.
+  - Browser subagent verified live page rendering with Groq Llama 3.3 badge and active dropzone.
 - **Status: VERIFIED & READY TO COMMIT ✅**

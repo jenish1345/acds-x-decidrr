@@ -55,6 +55,8 @@ export interface GeminiInsight {
   rawText: string;
 }
 
+export type AIInsight = GeminiInsight;
+
 export interface FinancialDataStore {
   metrics: FinancialMetric[];
   geminiInsight: GeminiInsight | null;

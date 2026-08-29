@@ -262,12 +262,12 @@ export const FinancialView: React.FC = () => {
         />
       </div>
 
-      {/* Gemini AI — Document Upload */}
+      {/* Groq AI — Document Upload */}
       <SectionCard
         title="AI Document Analysis"
-        subtitle="Upload a financial report, PDF, or spreadsheet — Gemini extracts key insights automatically"
-        badge="Gemini AI"
-        badgeColor="bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-600"
+        subtitle="Upload a financial report, PDF, or spreadsheet — Groq Llama 3.3 extracts key insights with ultra-low latency"
+        badge="Groq Llama 3.3"
+        badgeColor="bg-gradient-to-r from-orange-50 to-amber-50 text-orange-600"
         collapsible
       >
         <GeminiUploadPanel onInsightReady={handleInsightReady} />
