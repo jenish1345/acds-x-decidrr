@@ -63,32 +63,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
 
   return (
     <motion.div 
-      className="space-y-6"
+      className="space-y-5"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Executive Dashboard</h1>
-          <p className="text-sm text-gray-600">
+          <h1 className="text-2xl font-semibold text-[#111827] mb-1">Executive Dashboard</h1>
+          <p className="text-sm text-[#6b7280]">
             {currentDataset 
               ? `AI-powered insights from ${currentDataset.metadata.name}` 
               : 'Real-time company health and risk monitoring'}
           </p>
           {isLoading && (
-            <p className="text-sm text-corporate-navy mt-1">
+            <p className="text-sm text-[#1f2937] mt-1">
               Analyzing dataset with AI...
             </p>
           )}
         </div>
         <motion.button
           onClick={handleExportPDF}
-          className="flex items-center px-4 py-2 bg-corporate-navy text-white rounded-lg hover:bg-corporate-darkblue transition-colors"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className="inline-flex items-center gap-2 rounded-md bg-[#E5322D] px-3.5 py-2 text-sm font-medium text-white hover:bg-[#cc2923] transition-colors"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <Download className="w-4 h-4 mr-2" />
+          <Download className="w-4 h-4" />
           Export PDF
         </motion.button>
       </div>

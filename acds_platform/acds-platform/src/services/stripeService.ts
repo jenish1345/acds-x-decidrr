@@ -133,22 +133,3 @@ export async function getUsageMetrics(companyId: string): Promise<any> {
   return response.json();
 }
 
-// Mock functions for demo (remove in production)
-export const mockStripeService = {
-  async createCheckoutSession(plan: PricingPlan, interval: BillingInterval) {
-    console.log('Mock: Creating checkout session', { plan: plan.name, interval });
-    return {
-      sessionId: 'mock_session_' + Date.now(),
-      url: 'https://checkout.stripe.com/mock'
-    };
-  },
-
-  async createSubscription(planId: string, companyId: string) {
-    console.log('Mock: Creating subscription', { planId, companyId });
-    return {
-      id: 'sub_' + Date.now(),
-      status: 'active',
-      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-    };
-  }
-};

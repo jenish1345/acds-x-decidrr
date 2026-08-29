@@ -3,29 +3,74 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    font-size: 16px;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+    @apply bg-white font-sans antialiased;
+    color: #47474F;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  a {
+    transition: all 0.2s ease;
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  a:focus-visible {
+    @apply outline-none ring-2 ring-[#E5322D] ring-offset-2;
   }
 }
 
 @layer components {
   .card-enterprise {
-    @apply bg-white border border-gray-200 rounded-sm shadow-sm;
+    @apply bg-white border border-gray-200 rounded-[12px] shadow-sm;
   }
-  
+
   .btn-primary {
-    @apply px-4 py-2 bg-corporate-navy text-white text-sm font-medium rounded-sm hover:bg-corporate-darkblue transition-colors;
+    @apply inline-flex items-center justify-center min-h-[44px] px-5 py-3.5 text-base font-semibold rounded-full border border-white shadow-sm transition-colors;
+    background-color: #E5322D;
+    color: #fff;
   }
-  
+
+  .btn-primary:hover {
+    background-color: #cc2923;
+  }
+
+  .btn-primary:active {
+    background-color: #b5201c;
+  }
+
   .btn-secondary {
-    @apply px-4 py-2 bg-white text-corporate-navy text-sm font-medium border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors;
+    @apply inline-flex items-center justify-center min-h-[44px] px-5 py-3.5 text-base font-medium border border-gray-300 rounded-full hover:bg-gray-50 transition-colors;
+    color: #47474F;
+    background-color: #fff;
   }
-  
+
   .input-enterprise {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-1 focus:ring-corporate-navy focus:border-corporate-navy;
+    @apply w-full px-4 py-3 border border-gray-300 rounded-full text-base bg-white focus:outline-none focus:ring-2 focus:border-[#E5322D];
+    color: #47474F;
+    box-shadow: none;
   }
-  
+
+  .input-enterprise:focus {
+    box-shadow: 0 0 0 2px rgba(229, 50, 45, 0.2);
+  }
+
   .status-badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
   }
 }

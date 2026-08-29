@@ -1,6 +1,6 @@
 import type { CompanyHealth, KPI, Alert, RootCause, BusinessImpact, Recommendation, DepartmentRisk, User } from '../types';
 
-export const mockUser: User = {
+export const currentUser: User = {
   id: '1',
   name: 'Robert Chen',
   email: 'r.chen@company.com',
